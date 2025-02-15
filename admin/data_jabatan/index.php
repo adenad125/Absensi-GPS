@@ -8,9 +8,7 @@ if(!isset($_SESSION["login"])) {
 
 $judul = "Data Jabatan";
 include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/pegawai/config.php';
-
-
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
 $result = mysqli_query($connection, "SELECT * FROM jabatan ORDER BY id DESC");
 ?>  
@@ -39,7 +37,7 @@ $result = mysqli_query($connection, "SELECT * FROM jabatan ORDER BY id DESC");
 
                     <tr>
                         <td><?= $no++?></td>
-                        <td><?= $jabatan['jabatan']?></td>
+                        <td><?= $jabatan['nama_jabatan']?></td>
                         <td class="text-center">
                           <a href="<?= base_url('admin/data_jabatan/edit.php?id='.$jabatan['id']) ?>" class="badge bg-primary badge-pill">Edit</a>
                         

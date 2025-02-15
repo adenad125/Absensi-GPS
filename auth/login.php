@@ -1,7 +1,7 @@
 <?php 
 session_start();
 
-require_once('C:/laragon/www/PRESENSI/pegawai/config.php');
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
 
 if(isset($_POST["login"])){
@@ -14,22 +14,22 @@ if(isset($_POST["login"])){
         $row = mysqli_fetch_assoc($result);
 
         if(password_verify($password, $row["password"])) {
-            if($row['status'] == 'Aktif'){
+            if($row['status'] == 'aktif'){
 
                 $_SESSION['login'] = true;
                 $_SESSION['id'] = $row['id'];
                 $_SESSION['role'] = $row['role'];
                 $_SESSION['nama'] = $row['nama'];
                 $_SESSION['nip'] = $row['nip'];
-                $_SESSION['jabatan'] = $row['jabatan'];
-                $_SESSION['lokasi_presensi'] = $row['lokasi_presensi'];
+                $_SESSION['id_jabatan'] = $row['id_jabatan'];
+                $_SESSION['id_lok_presensi'] = $row['id_lok_presensi'];
                 
 
                 if($row['role'] === 'admin'){
-                    header("Location: ../admin/home/home.php");
+                    header("Location: ../admin/home");
                     exit();
                 } else {
-                    header("Location: ../pegawai/home/home.php");
+                    header("Location: ../pegawai/home");
                     exit();
                 }
             } else {

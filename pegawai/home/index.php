@@ -1,46 +1,46 @@
-<?php 
+<?php
 session_start();
-if(!isset($_SESSION["login"])) {
+if (!isset($_SESSION["login"])) {
   header("Location: ../../auth/login.php?pesan=belum_login");
-} else if($_SESSION["role"]  !== 'pegawai') {
+} else if ($_SESSION["role"] !== 'pegawai') {
   header("Location: ../../auth/login.php?pesan=tolak_akses");
 }
 
-include('../layout/header.php'); 
-require_once 'C:/laragon/www/PRESENSI/pegawai/config.php';
+include('../layout/header.php');
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
-$lokasi_presensi = $_SESSION['lokasi_presensi'];
-$result = mysqli_query($connection, "SELECT * FROM lokasi_presensi WHERE nama_lokasi = '$lokasi_presensi'"); 
+$id_lok_presensi = $_SESSION['id_lok_presensi'];
+$result = mysqli_query($connection, "SELECT * FROM lokasi_presensi WHERE id = '$id_lok_presensi'");
 
-while($lokasi = mysqli_fetch_array($result)){
+while ($lokasi = mysqli_fetch_array($result)) {
   $latitude_kantor = $lokasi['latitude'];
   $longitude_kantor = $lokasi['longitude'];
   $radius = $lokasi['radius'];
   $zona_waktu = $lokasi['zona_waktu'];
 }
 
-if($zona_waktu == 'WIB') {
+if ($zona_waktu == 'WIB') {
   date_default_timezone_set('Asia/Jakarta');
-}elseif($zona_waktu == 'WITA'){
-    date_default_timezone_set('Asia/Makassar');
-}elseif($zona_waktu == 'WITA'){
-    date_default_timezone_set('Asia/Jayapura');
+} elseif ($zona_waktu == 'WITA') {
+  date_default_timezone_set('Asia/Makassar');
+} elseif ($zona_waktu == 'WIT') {
+  date_default_timezone_set('Asia/Jayapura');
 }
-if(isset($_POST['latitude_pegawai'])) {
+if (isset($_POST['latitude_pegawai'])) {
   $latitude_pegawai = $_POST['latitude_pegawai'];
 } else {
-  $latitude_pegawai = null; 
+  $latitude_pegawai = null;
 }
-if(isset($_POST['longitude_pegawai'])) {
+if (isset($_POST['longitude_pegawai'])) {
   $longitude_pegawai = $_POST['longitude_pegawai'];
 } else {
-  $longitude_pegawai = null; 
+  $longitude_pegawai = null;
 }
 
 ?>
 
 <style>
-  .parent_date{
+  .parent_date {
     display: grid;
     grid-template-columns: auto auto auto auto auto;
     font-size: 20px;
@@ -48,7 +48,7 @@ if(isset($_POST['longitude_pegawai'])) {
     justify-content: center;
   }
 
-  .parent_clock{
+  .parent_clock {
     display: grid;
     grid-template-columns: auto auto auto auto auto;
     font-size: 30px;
@@ -67,13 +67,25 @@ if(isset($_POST['longitude_pegawai'])) {
         <div class="card text-center">
           <div class="card-header">Presensi Masuk</div>
           <div class="card-body">
+
+            <?php
+            $id_pegawai = $_SESSION['id'];
+            $tanggal_hari_ini = date('Y-m-d');
+
+            $result = mysqli_query(
+              $connection,
+              "SELECT * FROM presensi WHERE id_pegawai = '$id_pegawai' AND tanggal_masuk = '$tanggal_hari_ini'"
+            );
+            $presensi_masuk = mysqli_fetch_array($result);
+            print_r(empty($presensi_masuk));
+            ?>
             <div class="parent_date">
               <div id="tanggal_masuk"></div>
               <div class="ms-2"></div>
               <div id="bulan_masuk"></div>
               <div class="ms-2"></div>
               <div id="tahun_masuk"></div>
-            </div> 
+            </div>
 
             <div class="parent_clock">
               <div id="jam_masuk"></div>
@@ -83,18 +95,24 @@ if(isset($_POST['longitude_pegawai'])) {
               <div id="detik_masuk"></div>
             </div>
 
-            <form method="POST" action="<?= base_url('pegawai/presensi/presensi_masuk.php') ?>">
-              <input type="hidden" name="latitude_pegawai" value="<?= $latitude_pegawai ?>" placeholder="Latitude Pegawai" required>
-              <input type="hidden" name="longitude_pegawai" value="<?= $longitude_pegawai ?>" placeholder="Longitude Pegawai" required>
-              <input type="hidden" value="<?= $latitude_kantor ?>" name="latitude_kantor" readonly>
-              <input type="hidden" value="<?= $longitude_kantor ?>" name="longitude_kantor" readonly>
-              <input type="hidden" value="<?= $radius ?>" name="radius" readonly>
-              <input type="hidden" value="<?= $zona_waktu ?>" name="zona_waktu" readonly>
-              <input type="hidden" value="<?= date('Y-m-d') ?>" name="tanggal_masuk" readonly>
-              <input type="hidden" value="<?= date('H:i:s') ?>" name="jam_masuk" readonly>
+            <?php if (empty($presensi_masuk) && empty($presensi_masuk['jam_masuk'])): ?>
+              <form method="POST" action="<?= base_url('pegawai/presensi/presensi_masuk.php') ?>">
+                <input type="hidden" name="latitude_pegawai" value="<?= $latitude_pegawai ?>"
+                  placeholder="Latitude Pegawai" required>
+                <input type="hidden" name="longitude_pegawai" value="<?= $longitude_pegawai ?>"
+                  placeholder="Longitude Pegawai" required>
+                <input type="hidden" value="<?= $latitude_kantor ?>" name="latitude_kantor" readonly>
+                <input type="hidden" value="<?= $longitude_kantor ?>" name="longitude_kantor" readonly>
+                <input type="hidden" value="<?= $radius ?>" name="radius" readonly>
+                <input type="hidden" value="<?= $zona_waktu ?>" name="zona_waktu" readonly>
+                <input type="hidden" value="<?= date('Y-m-d') ?>" name="tanggal_masuk" readonly>
+                <input type="hidden" value="<?= date('H:i:s') ?>" name="jam_masuk" readonly>
 
-              <button type="submit" name="tombol_masuk" class="btn btn-primary mt-3">Masuk</button>
-          </form>
+                <button type="submit" name="tombol_masuk" class="btn btn-primary mt-3">Masuk</button>
+              </form>
+            <?php else: ?>
+              <p>Anda sudah melakukan presensi  pada pukul : <b class="text-success"><?= $presensi_masuk['jam_masuk']?></b></p>
+            <?php endif; ?>
 
           </div>
         </div>
@@ -110,7 +128,7 @@ if(isset($_POST['longitude_pegawai'])) {
               <div id="bulan_keluar"></div>
               <div class="ms-2"></div>
               <div id="tahun_keluar"></div>
-            </div> 
+            </div>
 
             <div class="parent_clock">
               <div id="jam_keluar"></div>
@@ -120,8 +138,19 @@ if(isset($_POST['longitude_pegawai'])) {
               <div id="detik_keluar"></div>
             </div>
 
-            <form action="">
-              <button type="submit" class="btn btn-danger mt-3">Keluar</button>
+            <form method="POST" action="<?= base_url('pegawai/presensi/presensi_keluar.php') ?>">
+              <input type="hidden" name="latitude_pegawai" value="<?= $latitude_pegawai ?>"
+                placeholder="Latitude Pegawai" required>
+              <input type="hidden" name="longitude_pegawai" value="<?= $longitude_pegawai ?>"
+                placeholder="Longitude Pegawai" required>
+              <input type="hidden" value="<?= $latitude_kantor ?>" name="latitude_kantor" readonly>
+              <input type="hidden" value="<?= $longitude_kantor ?>" name="longitude_kantor" readonly>
+              <input type="hidden" value="<?= $radius ?>" name="radius" readonly>
+              <input type="hidden" value="<?= $zona_waktu ?>" name="zona_waktu" readonly>
+              <input type="hidden" value="<?= date('Y-m-d') ?>" name="tanggal_keluar" readonly>
+              <input type="hidden" value="<?= date('H:i:s') ?>" name="jam_keluar" readonly>
+
+              <button type="submit" name="tombol_keluar" class="btn btn-danger mt-3">Keluar</button>
             </form>
           </div>
         </div>
@@ -176,4 +205,4 @@ if(isset($_POST['longitude_pegawai'])) {
   }
 </script>
 
-<?php include('../layout/footer.php'); ?>        
+<?php include('../layout/footer.php'); ?>

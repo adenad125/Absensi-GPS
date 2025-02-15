@@ -9,7 +9,7 @@ if(!isset($_SESSION["login"])) {
 
 $judul = "Tambah Lokasi Presensi";
 include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/pegawai/config.php';
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
 if(isset($_POST['submit'])) {
     $nama_lokasi = htmlspecialchars($_POST['nama_lokasi']);
@@ -57,7 +57,7 @@ if(isset($_POST['submit'])) {
             $result = mysqli_query($connection, "INSERT INTO lokasi_presensi(nama_lokasi, alamat_lokasi, tipe_lokasi, latitude, longitude, radius, zona_waktu, jam_masuk, jam_pulang) VALUES('$nama_lokasi','$alamat_lokasi','$tipe_lokasi','$latitude','$longitude','$radius','$zona_waktu','$jam_masuk','$jam_pulang')");
 
             $_SESSION['berhasil'] = "Data berhasil disimpan";
-            header("Location: lokasi_presensi.php");
+            header("Location: ./");
             exit;
         }
     } 

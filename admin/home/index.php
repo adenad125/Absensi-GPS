@@ -8,6 +8,8 @@ if(!isset($_SESSION["login"])) {
 
 $judul = "Home";
 include('../layout/header.php'); 
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
+
 $pegawai = mysqli_query($connection, "SELECT pegawai.*, users.status FROM pegawai JOIN users ON pegawai.id = users.id_pegawai WHERE STATUS = 'Aktif'");
 $total_pegawai_aktif = mysqli_num_rows($pegawai);
 

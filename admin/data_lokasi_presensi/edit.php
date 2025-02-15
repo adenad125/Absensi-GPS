@@ -9,7 +9,7 @@ if(!isset($_SESSION["login"])) {
 
 $judul = "Edit Data Lokasi Presensi";
 include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/pegawai/config.php';
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
 if(isset($_POST['update'])) {
     $id = $_POST['id'];
@@ -64,7 +64,7 @@ if(isset($_POST['update'])) {
           jam_pulang='$jam_pulang'
           WHERE id=$id ");
           $_SESSION['berhasil'] = "Data  berhasil diupdate";
-          header("location: lokasi_presensi.php");
+          header("location: ./");
           exit;
       }
     }

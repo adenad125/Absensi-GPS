@@ -13,9 +13,8 @@ if ($_SESSION["role"] !== 'pegawai') {
 }
 
 require_once 'C:/laragon/www/PRESENSI/config/config.php';
-
 // Pastikan semua data POST tersedia
-if (!isset($_POST['photo'], $_POST['id'], $_POST['tanggal_masuk'], $_POST['jam_masuk'])) {
+if (!isset($_POST['photo'], $_POST['id'], $_POST['tanggal_keluar'], $_POST['jam_keluar'])) {
     $_SESSION['gagal'] = "Data tidak lengkap. Harap coba lagi.";
     header("Location: ../home");
     exit;
@@ -23,8 +22,8 @@ if (!isset($_POST['photo'], $_POST['id'], $_POST['tanggal_masuk'], $_POST['jam_m
 
 $file_foto = $_POST['photo'];
 $id_pegawai = mysqli_real_escape_string($connection, $_POST['id']);
-$tanggal_masuk = mysqli_real_escape_string($connection, $_POST['tanggal_masuk']);
-$jam_masuk = mysqli_real_escape_string($connection, $_POST['jam_masuk']);
+$tanggal_keluar = mysqli_real_escape_string($connection, $_POST['tanggal_keluar']);
+$jam_keluar = mysqli_real_escape_string($connection, $_POST['jam_keluar']);
 
 // Validasi apakah foto dikirim dalam format Base64
 if (strpos($file_foto, 'data:image/jpeg;base64,') === false) {
@@ -46,14 +45,14 @@ if (!$data) {
 }
 
 // Folder penyimpanan foto
-$folderPath = '../foto/';
+$folderPath = '../foto/keluar/';
 if (!is_dir($folderPath)) {
     mkdir($folderPath, 0777, true);
 }
 
 // Menyimpan file dengan nama unik
-$nama_file = $folderPath . 'masuk_' . date('Ymd_His') . '.jpeg';
-$file = 'masuk_' . date('Ymd_His') . '.jpeg';
+$nama_file = $folderPath . 'keluar_' . date('Ymd_His') . '.jpeg';
+$file = 'keluar_' . date('Ymd_His') . '.jpeg';
 if (file_put_contents($nama_file, $data) === false) {
     $_SESSION['gagal'] = "Gagal menyimpan foto.";
     header("Location: ../home");
@@ -61,16 +60,15 @@ if (file_put_contents($nama_file, $data) === false) {
 }
 
 // Simpan data ke database
-$query = "INSERT INTO presensi (id_pegawai, tanggal_masuk, jam_masuk, foto_masuk) 
-          VALUES ('$id_pegawai', '$tanggal_masuk', '$jam_masuk', '$file')";
+$query = "UPDATE presensi SET jam_keluar = '$jam_keluar', foto_keluar = '$file'
+          WHERE id_pegawai = '$id_pegawai' AND tanggal_masuk = '$tanggal_keluar'";
 
 if (mysqli_query($connection, $query)) {
-    $_SESSION['berhasil'] = "Presensi masuk berhasil.";
+    $_SESSION['berhasil'] = "Presensi keluar berhasil.";
 } else {
-    $_SESSION['gagal'] = "Presensi masuk gagal: " . mysqli_error($connection);
+    $_SESSION['gagal'] = "Presensi keluar gagal: " . mysqli_error($connection);
 }
 
 // Redirect kembali ke halaman home
-header("Location: ../home");
+// header("Location: ../home");
 exit;
-?>

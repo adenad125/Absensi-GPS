@@ -8,7 +8,7 @@ if(!isset($_SESSION["login"])) {
 
 $judul = "Detail Lokasi Presensi";
 include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/pegawai/config.php';
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
 $id = $_GET ['id'];
 $result = mysqli_query($connection, "SELECT * FROM lokasi_presensi  WHERE id=$id");

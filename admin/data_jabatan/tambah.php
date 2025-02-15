@@ -9,21 +9,21 @@ if(!isset($_SESSION["login"])) {
 
 $judul = "Tambah Data Jabatan";
 include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/pegawai/config.php';
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
 if(isset($_POST['submit'])) {
-    $jabatan = htmlspecialchars($_POST['jabatan']);
+    $nama_jabatan = htmlspecialchars($_POST['nama_jabatan']);
 
     if($_SERVER["REQUEST_METHOD"] == "POST"){
-      if(empty($jabatan)) {
+      if(empty($nama_jabatan)) {
         $pesan_kesalahan = "Nama Jabatan wajib diisi";
       }
       if(!empty($pesan_kesalahan)){
         $_SESSION['validasi'] = $pesan_kesalahan;
       }else{
-          $result = mysqli_query($connection, "INSERT INTO jabatan(jabatan) VALUES('$jabatan')");
+          $result = mysqli_query($connection, "INSERT INTO jabatan(nama_jabatan) VALUES('$nama_jabatan')");
           $_SESSION['berhasil'] = "Data jabatan berhasil disimpan";
-          header("location: jabatan.php");
+          header("location: ./");
           exit;
       }
     }
@@ -41,7 +41,7 @@ if(isset($_POST['submit'])) {
                 <form action="tambah.php" method="POST">
                     <div class="mb-3">
                         <label for="">Nama Jabatan</label>
-                        <input type="text" class="form-control" name="jabatan">
+                        <input type="text" class="form-control" name="nama_jabatan">
                     </div>
 
                     <button type="submit" name="submit" class="btn btn-primary">Simpan</button>

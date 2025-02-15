@@ -1,7 +1,7 @@
 <?php 
 
 session_start();
-require_once 'C:/laragon/www/PRESENSI/pegawai/config.php';
+require_once 'C:/laragon/www/PRESENSI/config/config.php';
 
 $id = $_GET['id'];
 

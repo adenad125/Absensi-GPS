@@ -3,7 +3,7 @@
 $db_host = "localhost";
 $db_user = "root";
 $db_pass = "";
-$db_name = "presensi";
+$db_name = "presensi_baru";
 
 $connection = mysqli_connect($db_host, $db_user, $db_pass, $db_name);
 
@@ -20,3 +20,5 @@ function base_url($url = null)
         return $base_url;
     }
 }
+
+?>
