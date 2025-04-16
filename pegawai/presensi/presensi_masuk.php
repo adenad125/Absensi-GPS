@@ -116,17 +116,17 @@ if ($jarak_meter > $radius) {
     let jam_masuk = document.getElementById('jam_masuk').value;
     Webcam.snap(function (data_uri) {
       document.getElementById('my_result').innerHTML = '<img src="' + data_uri + '"/>';
-      document.getElementById('my_camera').style.display = 'none'; // Hide the webcam element
-      document.getElementById('retake-foto').style.display = 'inline'; // Show the retake button
-      document.getElementById('masuk').style.display = 'inline'; // Show the masuk button
+      document.getElementById('my_camera').style.display = 'none'; 
+      document.getElementById('retake-foto').style.display = 'inline';
+      document.getElementById('masuk').style.display = 'inline';
     });
   }
 
   document.getElementById('retake-foto').addEventListener('click', function () {
-    document.getElementById('my_camera').style.display = 'block'; // Show the webcam element
-    document.getElementById('my_result').innerHTML = ''; // Clear the result
-    document.getElementById('retake-foto').style.display = 'none'; // Hide the retake button
-    document.getElementById('masuk').style.display = 'none'; // Hide the masuk button
+    document.getElementById('my_camera').style.display = 'block';
+    document.getElementById('my_result').innerHTML = ''; 
+    document.getElementById('retake-foto').style.display = 'none'; 
+    document.getElementById('masuk').style.display = 'none'; 
   });
 
   document.getElementById('masuk').addEventListener('click', function () {
@@ -138,7 +138,7 @@ if ($jarak_meter > $radius) {
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
       if (xhttp.readyState == 4 && xhttp.status == 200) {
-        // window.location.href = '../home';
+        
       }
     };
     xhttp.open("POST", "presensi_masuk_aksi.php", true);

@@ -1,6 +1,6 @@
 <?php 
 global $judul;
-require_once('C:/laragon/www/PRESENSI/config.php') ?>
+require_once('C:/laragon/www/PRESENSI/config/config.php') ?>
 
 
 <!doctype html>
@@ -230,7 +230,7 @@ require_once('C:/laragon/www/PRESENSI/config.php') ?>
                         <a class="dropdown-item" href="<?= base_url('admin/rekap_presensi/rekap_harian.php')?>">
                           Rekap Harian
                         </a>
-                        <a class="dropdown-item" href="<?= base_url('admin/rekpa_presensi/rekap_bulanan.php')?>">
+                        <a class="dropdown-item" href="<?= base_url('admin/rekap_presensi/rekap_bulanan.php')?>">
                           Rekap Bulanan
                         </a>
                       </div>

@@ -60,20 +60,20 @@ if(isset($_POST["login"])){
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <meta http-equiv="X-UA-Compatible" content="ie=edge"/>
-    <title>Home</title>
+    <title>Sistem Informasi Absen Berbasis WeB</title>
     <!-- CSS files -->
     <link href="<?= base_url('assets/css/tabler.min.css') ?>" rel="stylesheet"/>
     <link href="<?= base_url('assets/css/tabler-vendors.min.css') ?>" rel="stylesheet"/>
     <link href="<?= base_url('assets/css/demo.min.css') ?>" rel="stylesheet"/>
     <style>
       body {
-        background: url('<?= base_url("assets/img/background.jpeg") ?>') no-repeat center center fixed;
+        background: url('<?= base_url("assets/img/background.png") ?>') no-repeat center center fixed;
         background-size: cover;
         font-feature-settings: "cv03", "cv04", "cv11";
       }
       .card {
-        background-color: rgba(255, 255, 255, 0.8); /* Transparansi */
-        border-radius: 10px; /* Membuat sudut kartu melengkung */
+        background-color: rgba(255, 255, 255, 0.8); 
+        border-radius: 10px;
       }
 
       
@@ -91,7 +91,7 @@ if(isset($_POST["login"])){
                 <div class="text-center mb-4">
                   <div class="text-center mb-4">
                     <a href="." class="navbar-brand navbar-brand-autodark">
-                      <img src="<?= base_url('assets/img/logo.jpeg') ?>" height="70" alt="">
+                      <img src="<?= base_url('assets/img/logo pdam.png') ?>" height="70" alt="">
                     </a>
                   </div>
                   <h2 class="h2 text-center mb-4">Login</h2>
