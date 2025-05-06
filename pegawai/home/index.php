@@ -67,11 +67,9 @@ if (isset($_POST['longitude_pegawai'])) {
         <div class="card text-center">
           <div class="card-header">Presensi Masuk</div>
           <div class="card-body">
-
             <?php
             $id_pegawai = $_SESSION['id'];
             $tanggal_hari_ini = date('Y-m-d');
-
             $result = mysqli_query(
               $connection,
               "SELECT * FROM presensi WHERE id_pegawai = '$id_pegawai' AND tanggal_masuk = '$tanggal_hari_ini'"
@@ -86,7 +84,6 @@ if (isset($_POST['longitude_pegawai'])) {
               <div class="ms-2"></div>
               <div id="tahun_masuk"></div>
             </div>
-
             <div class="parent_clock">
               <div id="jam_masuk"></div>
               <div>:</div>
@@ -94,7 +91,6 @@ if (isset($_POST['longitude_pegawai'])) {
               <div>:</div>
               <div id="detik_masuk"></div>
             </div>
-
             <?php if (empty($presensi_masuk) && empty($presensi_masuk['jam_masuk'])): ?>
               <form method="POST" action="<?= base_url('pegawai/presensi/presensi_masuk.php') ?>">
                 <input type="hidden" name="latitude_pegawai" value="<?= $latitude_pegawai ?>"
@@ -107,13 +103,11 @@ if (isset($_POST['longitude_pegawai'])) {
                 <input type="hidden" value="<?= $zona_waktu ?>" name="zona_waktu" readonly>
                 <input type="hidden" value="<?= date('Y-m-d') ?>" name="tanggal_masuk" readonly>
                 <input type="hidden" value="<?= date('H:i:s') ?>" name="jam_masuk" readonly>
-
                 <button type="submit" name="tombol_masuk" class="btn btn-primary mt-3">Masuk</button>
               </form>
             <?php else: ?>
               <p>Anda sudah melakukan presensi  pada pukul : <b class="text-success"><?= $presensi_masuk['jam_masuk']?></b></p>
             <?php endif; ?>
-
           </div>
         </div>
       </div>
