@@ -1,26 +1,30 @@
 <?php
 session_start();
 ob_start();
-$judul = "Rekap Presensi Harian";
+$judul = "Laporan Kehadiran Pegawai" . (isset($_SESSION['nama']) ? " - " . $_SESSION['nama'] : '');
+
 require_once realpath(__DIR__ . '/../../config/config.php');
 
-if (empty($_GET['tanggal_dari'])) {
-    $result = mysqli_query($connection, "SELECT pr.*, p.nama, l.nama_lokasi FROM presensi pr 
-    JOIN pegawai p ON  p.id = pr.id_pegawai
-    JOIN lokasi_presensi l ON l.id = p.id_lok_presensi");
-} else {
-    // Convert dd/mm/yyyy to yyyy-mm-dd for MySQL
-    $tanggal_dari = $_GET['tanggal_dari'];
-    $tanggal_sampai = $_GET['tanggal_sampai'];
-    $tanggal_dari_mysql = date('Y-m-d', strtotime(str_replace('/', '-', $tanggal_dari)));
-    $tanggal_sampai_mysql = date('Y-m-d', strtotime(str_replace('/', '-', $tanggal_sampai)));
-    $result = mysqli_query($connection, "SELECT pr.*, p.nama, l.nama_lokasi FROM presensi pr 
-    JOIN pegawai p ON  p.id = pr.id_pegawai
-    JOIN lokasi_presensi l ON l.id = p.id_lok_presensi
-    WHERE pr.tanggal_masuk BETWEEN '$tanggal_dari_mysql' AND '$tanggal_sampai_mysql'");
-}
-?>
+// Get selected values from form (prioritize POST/GET, fallback to current)
+$bln_dari = $_GET['bln_dari'] ?? date('m');
+$bln_sampai = $_GET['bln_sampai'] ?? date('m');
+$tahun = $_GET['tahun'] ?? date('Y');
 
+// Compose MySQL date range from selected month and year
+$bulan_dari = $tahun . '-' . $bln_dari;
+$bulan_sampai = $tahun . '-' . $bln_sampai;
+$tanggal_dari = $bulan_dari . '-01';
+$tanggal_sampai = date('Y-m-t', strtotime($bulan_sampai . '-01'));
+
+// Query for the selected month range
+$result = mysqli_query($connection, "SELECT pr.*, p.nama, l.nama_lokasi 
+    FROM presensi pr 
+    JOIN pegawai p ON p.id = pr.id_pegawai
+    JOIN lokasi_presensi l ON l.id = p.id_lok_presensi
+    WHERE pr.tanggal_masuk BETWEEN '$tanggal_dari' AND '$tanggal_sampai'
+    AND pr.id_pegawai = '{$_SESSION['id']}'
+    ORDER BY pr.tanggal_masuk ASC");
+?>
 <!-- section -->
 <div class="page-header d-print-none">
     <div class="container-xl">
@@ -37,7 +41,7 @@ if (empty($_GET['tanggal_dari'])) {
     <div class="container-xl">
         <div class="row mb-3">
             <div class="col-md-2">
-                <a href="export_excel.php?tanggal_dari=<?= $_GET['tanggal_dari'] ?? '' ?>&tanggal_sampai=<?= $_GET['tanggal_sampai'] ?? '' ?>"
+                <a href="export_excel.php?bln_dari=<?= $bln_dari ?>&bln_sampai=<?= $bln_sampai ?>&tahun=<?= $tahun ?>"
                     class="btn btn-success">
                     Export Excel
                 </a>
@@ -45,8 +49,50 @@ if (empty($_GET['tanggal_dari'])) {
             <div class="col-md-10">
                 <form method="GET">
                     <div class="input-group">
-                        <input type="date" class="form-control" name="tanggal_dari" required value="<?= isset($_GET['tanggal_dari']) ? $_GET['tanggal_dari'] : '' ?>">
-                        <input type="date" class="form-control" name="tanggal_sampai" required value="<?= isset($_GET['tanggal_sampai']) ? $_GET['tanggal_sampai'] : '' ?>">
+                        <?php
+                        // Helper for select options
+                        function month_options($selected = null)
+                        {
+                            $bulan_arr = [
+                                '01' => 'Januari',
+                                '02' => 'Februari',
+                                '03' => 'Maret',
+                                '04' => 'April',
+                                '05' => 'Mei',
+                                '06' => 'Juni',
+                                '07' => 'Juli',
+                                '08' => 'Agustus',
+                                '09' => 'September',
+                                '10' => 'Oktober',
+                                '11' => 'November',
+                                '12' => 'Desember'
+                            ];
+                            foreach ($bulan_arr as $num => $nama) {
+                                $sel = ($selected == $num) ? 'selected' : '';
+                                echo "<option value=\"$num\" $sel>$nama</option>";
+                            }
+                        }
+                        function year_options($selected = null)
+                        {
+                            $tahun_sekarang = date('Y');
+                            for ($y = $tahun_sekarang - 5; $y <= $tahun_sekarang + 1; $y++) {
+                                $sel = ($selected == $y) ? 'selected' : '';
+                                echo "<option value=\"$y\" $sel>$y</option>";
+                            }
+                        }
+                        ?>
+                        <label class="input-group-text">Dari</label>
+                        <select name="bln_dari" class="form-select" required>
+                            <?php month_options($bln_dari); ?>
+                        </select>
+                        <label class="input-group-text">Sampai</label>
+                        <select name="bln_sampai" class="form-select" required>
+                            <?php month_options($bln_sampai); ?>
+                        </select>
+                        <label class="input-group-text">Tahun</label>
+                        <select name="tahun" class="form-select" required>
+                            <?php year_options($tahun); ?>
+                        </select>
                         <button type="submit" class="btn btn-primary">Tampilkan</button>
                     </div>
                 </form>
@@ -61,7 +107,7 @@ if (empty($_GET['tanggal_dari'])) {
                 <th>Tanggal</th>
                 <th>Jam Masuk</th>
                 <th>Jam Pulang</th>
-                <th>Total Jam Kerja</th>
+                <th>Total Jam</th>
                 <th>Total Terlambat</th>
             </tr>
 

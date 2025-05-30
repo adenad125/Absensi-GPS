@@ -20,25 +20,25 @@ if (isset($_POST["login"])) {
     $row = mysqli_fetch_assoc($result);
 
     if (!password_verify($password, $row["password"])) {
-      $_SESSION["message_login"] = "Password salah, silahkan coba lagi";
+      $_SESSION["message"] = "Password salah, silahkan coba lagi";
     } elseif ($row['status'] !== 'aktif') {
-      $_SESSION["message_login"] = "Akun Anda belum aktif";
+      $_SESSION["message"] = "Akun Anda belum aktif";
     } else {
       $_SESSION['login'] = true;
-      $_SESSION['id'] = $row['id'];
+      $_SESSION['id'] = $row['id_pegawai'];
       $_SESSION['role'] = $row['role'];
       $_SESSION['nama'] = $row['nama'];
       $_SESSION['nip'] = $row['nip'];
       $_SESSION['id_jabatan'] = $row['id_jabatan'];
       $_SESSION['id_lok_presensi'] = $row['id_lok_presensi'];
       $_SESSION['login_success'] = true;
-      $_SESSION['message_login'] = "Selamat datang, " . $row['nama'];
+      $_SESSION['message'] = "Selamat datang, " . $row['nama'];
 
       header("Location: ../" . ($row['role'] === 'admin' ? "admin/home" : "pegawai/home"));
       exit();
     }
   } else {
-    $_SESSION["message_login"] = "Username salah, silahkan coba lagi";
+    $_SESSION["message"] = "Username salah, silahkan coba lagi";
   }
 }
 
@@ -125,12 +125,12 @@ if (isset($_POST["login"])) {
     Swal.fire({
       icon: "error",
       title: "Oops...",
-      text: "<?= $_SESSION['message_login']; ?>",
+      text: "<?= $_SESSION['message']; ?>",
     });
   </script>
 <?php }
 unset($_SESSION['login_success']);
-unset($_SESSION['message_login']);
+unset($_SESSION['message']);
 ?>
 
 <?php if (isset($_GET['status_logout']) && $_GET['status_logout'] == 'success') { ?>

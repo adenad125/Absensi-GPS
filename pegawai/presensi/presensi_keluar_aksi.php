@@ -1,18 +1,13 @@
-<?php 
+<?php
 session_start();
 ob_start();
+require_once realpath(__DIR__ . '/../../config/config.php');
 
-if (!isset($_SESSION["login"])) {
-    header("Location: ../../auth/login.php?pesan=belum_login");
-    exit;
-} 
-
-if ($_SESSION["role"] !== 'pegawai') {
-    header("Location: ../../auth/login.php?pesan=tolak_akses");
+if (empty($_SESSION["login"]) || $_SESSION["role"] !== 'pegawai') {
+    header("Location: ../../auth/login.php?pesan=akses_ditolak");
     exit;
 }
 
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
 // Pastikan semua data POST tersedia
 if (!isset($_POST['photo'], $_POST['id'], $_POST['tanggal_keluar'], $_POST['jam_keluar'])) {
     $_SESSION['gagal'] = "Data tidak lengkap. Harap coba lagi.";
@@ -51,8 +46,8 @@ if (!is_dir($folderPath)) {
 }
 
 // Menyimpan file dengan nama unik
-$nama_file = $folderPath . 'keluar_' . date('Ymd_His') . '.jpeg';
-$file = 'keluar_' . date('Ymd_His') . '.jpeg';
+$nama_file = $folderPath . $id_pegawai . '_out_' . date('Ymd_His') . '.jpeg';
+$file = $id_pegawai . '_out_' . date('Ymd_His') . '.jpeg';
 if (file_put_contents($nama_file, $data) === false) {
     $_SESSION['gagal'] = "Gagal menyimpan foto.";
     header("Location: ../home");
@@ -69,6 +64,4 @@ if (mysqli_query($connection, $query)) {
     $_SESSION['gagal'] = "Presensi keluar gagal: " . mysqli_error($connection);
 }
 
-// Redirect kembali ke halaman home
-// header("Location: ../home");
 exit;

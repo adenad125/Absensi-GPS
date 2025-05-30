@@ -1,11 +1,3 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.26/webcam.min.js"
-  integrity="sha512-dQIiHSl2hr3NWKKLycPndtpbh5iaHLo6MwrXm7F0FM5e+kL2U16oE9uIwPHUl6fQBeCthiEuV/rzP3MiAB8Vfw=="
-  crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
 <style>
   #map {
     height: 300px;
@@ -15,40 +7,49 @@
 <?php
 session_start();
 ob_start();
-
+$judul = "Presensi Keluar";
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 session_regenerate_id(true);
 
-if (!isset($_SESSION["login"])) {
-  header("Location: ../../auth/login.php?pesan=belum_login");
-  exit;
-} else if ($_SESSION["role"] !== 'pegawai') {
-  header("Location: ../../auth/login.php?pesan=tolak_akses");
-  exit;
+$id_lok_presensi = $_SESSION['id_lok_presensi'];
+
+$result = mysqli_query($connection, "SELECT * FROM lokasi_presensi WHERE id = '$id_lok_presensi'");
+
+while ($lokasi = mysqli_fetch_array($result)) {
+  $latitude_kantor = $lokasi['latitude'];
+  $longitude_kantor = $lokasi['longitude'];
+  $radius = $lokasi['radius'];
+  $zona_waktu = $lokasi['zona_waktu'];
 }
 
-include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+$latitude_pegawai = 0;
+$longitude_pegawai = 0;
+$tanggal_keluar = '';
+$jam_keluar = '';
 
+// Set pegawai coordinates from session if available
+if (isset($_SESSION['lat_pegawai'])) {
+  $latitude_pegawai = (float) $_SESSION['lat_pegawai'];
+}
+if (isset($_SESSION['lng_pegawai'])) {
+  $longitude_pegawai = (float) $_SESSION['lng_pegawai'];
+}
 
-if (isset($_POST['tombol_keluar'])) {
-  $latitude_pegawai = (float) $_POST['latitude_pegawai'];
-  $longitude_pegawai = (float) $_POST['longitude_pegawai'];
-  $latitude_kantor = (float) $_POST['latitude_kantor'];
-  $longitude_kantor = (float) $_POST['longitude_kantor'];
-  $radius = (float) $_POST['radius'];
-  $zona_waktu = htmlspecialchars($_POST['zona_waktu']);
+if (isset($_POST['tanggal_keluar'])) {
   $tanggal_keluar = htmlspecialchars($_POST['tanggal_keluar']);
-  $jam_keluar = htmlspecialchars($_POST['jam_keluar']);
-
 }
+if (isset($_POST['jam_keluar'])) {
+  $jam_keluar = htmlspecialchars($_POST['jam_keluar']);
+}
+
 $perbedaan_koordinat = $longitude_pegawai - $longitude_kantor;
 
-
 if (!is_numeric($latitude_pegawai) || !is_numeric($latitude_kantor) || !is_numeric($perbedaan_koordinat)) {
-  die('Invalid coordinates provided.');
+  $_SESSION['gagal'] = "Invlalid coordinates. Please try again.";
+  header('Location: ../home/index.php');
+  exit;
 }
-
 
 $jarak = sin(deg2rad($latitude_pegawai)) * sin(deg2rad($latitude_kantor)) +
   cos(deg2rad($latitude_pegawai)) * cos(deg2rad($latitude_kantor)) *
@@ -58,20 +59,30 @@ $jarak = rad2deg($jarak);
 $mil = $jarak * 60 * 1.1515;
 $jarak_km = $mil * 1.609344;
 $jarak_meter = $jarak_km * 1000;
-
 ?>
 
-<?php if ($jarak_meter > $radius) { ?>
-  <?= $_SESSION['gagal'] = "Anda keluar dari halaman kantor";
-  header("Location: ../home");
-  exit;
-?>
-<?php } else { ?>
-
-  <div class="page-body">
-    <div class="container-xl">
-      <div class="row">
-
+<!-- section -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          <?= $judul ?>
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="page-body">
+  <div class="container-xl">
+    <div class="row">
+      <?php
+      if ($jarak_meter > $radius) {
+        $_SESSION['gagal'] = "Anda terlalu jauh dari lokasi kantor.";
+        header('Location: ../home/index.php');
+        exit;
+      } else {
+        ?>
         <div class="col-md-6">
           <div class="card">
             <div class="card-body">
@@ -95,23 +106,42 @@ $jarak_meter = $jarak_km * 1000;
             </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
   <script language="JavaScript">
-    Webcam.set({
-      width: 320,
-      height: 240,
-      dest_width: 320,
-      dest_height: 240,
-      image_format: 'jpeg',
-      jpeg_quality: 90,
-      force_flash: false
-    });
+    // Webcam error handling
+    function handleWebcamError(err) {
+      let msg = "Webcam tidak dapat diakses. Pastikan browser Anda mengizinkan akses kamera.";
+      if (err && err.message) {
+        msg += "<br>Error: " + err.message;
+      }
+      document.getElementById('my_camera').style.display = 'none';
+      document.getElementById('my_result').innerHTML = '<div class="alert alert-danger">' + msg + '</div>';
+      document.getElementById('ambil-foto').disabled = true;
+    }
 
-    Webcam.attach('#my_camera');
+    // Try to attach webcam and handle errors
+    try {
+      Webcam.set({
+        width: 320,
+        height: 240,
+        dest_width: 320,
+        dest_height: 240,
+        image_format: 'jpeg',
+        jpeg_quality: 90,
+        force_flash: false
+      });
+
+      Webcam.attach('#my_camera');
+
+      Webcam.on('error', function (err) {
+        handleWebcamError(err);
+      });
+    } catch (err) {
+      handleWebcamError(err);
+    }
 
     document.getElementById('ambil-foto').addEventListener('click', function () {
       takeSnapshot();
@@ -146,7 +176,7 @@ $jarak_meter = $jarak_km * 1000;
       var xhttp = new XMLHttpRequest();
       xhttp.onreadystatechange = function () {
         if (xhttp.readyState == 4 && xhttp.status == 200) {
-          // window.location.href = '../home';
+          window.location.href = "../home/index.php";
         }
       };
       xhttp.open("POST", "presensi_keluar_aksi.php", true);
@@ -166,22 +196,36 @@ $jarak_meter = $jarak_km * 1000;
     let latitude_peg = <?= $latitude_pegawai ?>;
     let longitude_peg = <?= $longitude_pegawai ?>;
 
-    let map = L.map('map').setView([latitude_ktr, longitude_ktr], 13);
+    let map = L.map('map').setView([latitude_ktr, longitude_ktr], 14);
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
     var marker = L.marker([latitude_ktr, longitude_ktr]).addTo(map);
-
-    var circle = L.circle([latitude_peg, longitude_peg], {
+    var circle = L.circle([latitude_ktr, longitude_ktr], {
       color: 'red',
       fillColor: '#f03',
       fillOpacity: 0.5,
-      radius: 500
-    }).addTo(map).binPopup("lokasi Anda saat ini").openPopuo;
+      radius: <?= $radius ?> // radius in meters
+    }).addTo(map).bindPopup("lokasi Kantor").openPopup();
+
+    // Add marker for pegawai (employee) location if coordinates are valid
+    if (!isNaN(latitude_peg) && !isNaN(longitude_peg) && latitude_peg !== 0 && longitude_peg !== 0) {
+      var pegawaiMarker = L.marker([latitude_peg, longitude_peg], {
+        icon: L.icon({
+          iconUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.3/dist/images/marker-shadow.png',
+          shadowSize: [41, 41]
+        })
+      }).addTo(map).bindPopup("Lokasi Anda");
+    }
   </script>
 <?php } ?>
 
-
-<?php include('../layout/footer.php'); ?>
+<?php
+$content = ob_get_clean();
+require_once __DIR__ . '/../layout/main.php';

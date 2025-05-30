@@ -1,20 +1,15 @@
 <?php
 session_start();
-if (!isset($_SESSION["login"])) {
-  header("Location: ../../auth/login.php?pesan=belum_login");
-} else if ($_SESSION["role"] !== 'pegawai') {
-  header("Location: ../../auth/login.php?pesan=tolak_akses");
-}
-
-include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+ob_start();
+$judul = "Home";
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 $id_lok_presensi = $_SESSION['id_lok_presensi'];
 $result = mysqli_query($connection, "SELECT * FROM lokasi_presensi WHERE id = '$id_lok_presensi'");
 
 while ($lokasi = mysqli_fetch_array($result)) {
-  $latitude_kantor = $lokasi['latitude'];
-  $longitude_kantor = $lokasi['longitude'];
+  $lat_kantor = $lokasi['latitude'];
+  $lng_kantor = $lokasi['longitude'];
   $radius = $lokasi['radius'];
   $zona_waktu = $lokasi['zona_waktu'];
 }
@@ -26,17 +21,8 @@ if ($zona_waktu == 'WIB') {
 } elseif ($zona_waktu == 'WIT') {
   date_default_timezone_set('Asia/Jayapura');
 }
-if (isset($_POST['latitude_pegawai'])) {
-  $latitude_pegawai = $_POST['latitude_pegawai'];
-} else {
-  $latitude_pegawai = null;
-}
-if (isset($_POST['longitude_pegawai'])) {
-  $longitude_pegawai = $_POST['longitude_pegawai'];
-} else {
-  $longitude_pegawai = null;
-}
 
+// Remove unnecessary lat/lng pegawai variables
 ?>
 
 <style>
@@ -58,8 +44,29 @@ if (isset($_POST['longitude_pegawai'])) {
   }
 </style>
 
+<!-- section -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          <?= $judul ?>
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Page body -->
 <div class="page-body">
+  <?php
+  $id_pegawai = $_SESSION['id'];
+  $tanggal_hari_ini = date('Y-m-d');
+  $result = mysqli_query(
+    $connection,
+    "SELECT * FROM presensi WHERE id_pegawai = '$id_pegawai' AND tanggal_masuk = '$tanggal_hari_ini'"
+  );
+  $presensi = mysqli_fetch_array($result);
+  ?>
   <div class="container-xl">
     <div class="row">
       <div class="col-md-2"></div>
@@ -67,16 +74,6 @@ if (isset($_POST['longitude_pegawai'])) {
         <div class="card text-center">
           <div class="card-header">Presensi Masuk</div>
           <div class="card-body">
-            <?php
-            $id_pegawai = $_SESSION['id'];
-            $tanggal_hari_ini = date('Y-m-d');
-            $result = mysqli_query(
-              $connection,
-              "SELECT * FROM presensi WHERE id_pegawai = '$id_pegawai' AND tanggal_masuk = '$tanggal_hari_ini'"
-            );
-            $presensi_masuk = mysqli_fetch_array($result);
-            print_r(empty($presensi_masuk));
-            ?>
             <div class="parent_date">
               <div id="tanggal_masuk"></div>
               <div class="ms-2"></div>
@@ -91,14 +88,10 @@ if (isset($_POST['longitude_pegawai'])) {
               <div>:</div>
               <div id="detik_masuk"></div>
             </div>
-            <?php if (empty($presensi_masuk) && empty($presensi_masuk['jam_masuk'])): ?>
-              <form method="POST" action="<?= base_url('pegawai/presensi/presensi_masuk.php') ?>">
-                <input type="hidden" name="latitude_pegawai" value="<?= $latitude_pegawai ?>"
-                  placeholder="Latitude Pegawai" required>
-                <input type="hidden" name="longitude_pegawai" value="<?= $longitude_pegawai ?>"
-                  placeholder="Longitude Pegawai" required>
-                <input type="hidden" value="<?= $latitude_kantor ?>" name="latitude_kantor" readonly>
-                <input type="hidden" value="<?= $longitude_kantor ?>" name="longitude_kantor" readonly>
+            <?php if (empty($presensi) && empty($presensi['jam_masuk'])): ?>
+              <form method="POST" action="<?= base_url('pegawai/presensi/presensi_masuk.php') ?>" id="form-masuk">
+                <input type="hidden" value="<?= $lat_kantor ?>" name="lat_kantor_masuk" readonly>
+                <input type="hidden" value="<?= $lng_kantor ?>" name="lng_kantor_masuk" readonly>
                 <input type="hidden" value="<?= $radius ?>" name="radius" readonly>
                 <input type="hidden" value="<?= $zona_waktu ?>" name="zona_waktu" readonly>
                 <input type="hidden" value="<?= date('Y-m-d') ?>" name="tanggal_masuk" readonly>
@@ -106,7 +99,8 @@ if (isset($_POST['longitude_pegawai'])) {
                 <button type="submit" name="tombol_masuk" class="btn btn-primary mt-3">Masuk</button>
               </form>
             <?php else: ?>
-              <p>Anda sudah melakukan presensi  pada pukul : <b class="text-success"><?= $presensi_masuk['jam_masuk']?></b></p>
+              <p>Anda sudah melakukan presensi pada pukul : <b
+                  class="text-success"><?= $presensi['jam_masuk'] ?></b></p>
             <?php endif; ?>
           </div>
         </div>
@@ -123,7 +117,6 @@ if (isset($_POST['longitude_pegawai'])) {
               <div class="ms-2"></div>
               <div id="tahun_keluar"></div>
             </div>
-
             <div class="parent_clock">
               <div id="jam_keluar"></div>
               <div>:</div>
@@ -131,21 +124,20 @@ if (isset($_POST['longitude_pegawai'])) {
               <div>:</div>
               <div id="detik_keluar"></div>
             </div>
-
-            <form method="POST" action="<?= base_url('pegawai/presensi/presensi_keluar.php') ?>">
-              <input type="hidden" name="latitude_pegawai" value="<?= $latitude_pegawai ?>"
-                placeholder="Latitude Pegawai" required>
-              <input type="hidden" name="longitude_pegawai" value="<?= $longitude_pegawai ?>"
-                placeholder="Longitude Pegawai" required>
-              <input type="hidden" value="<?= $latitude_kantor ?>" name="latitude_kantor" readonly>
-              <input type="hidden" value="<?= $longitude_kantor ?>" name="longitude_kantor" readonly>
-              <input type="hidden" value="<?= $radius ?>" name="radius" readonly>
-              <input type="hidden" value="<?= $zona_waktu ?>" name="zona_waktu" readonly>
-              <input type="hidden" value="<?= date('Y-m-d') ?>" name="tanggal_keluar" readonly>
-              <input type="hidden" value="<?= date('H:i:s') ?>" name="jam_keluar" readonly>
-
-              <button type="submit" name="tombol_keluar" class="btn btn-danger mt-3">Keluar</button>
-            </form>
+            <?php if (!empty($presensi) && empty($presensi['jam_keluar'])): ?>
+              <form method="POST" action="<?= base_url('pegawai/presensi/presensi_keluar.php') ?>">
+                <input type="hidden" value="<?= $lat_kantor ?>" name="lat_kantor_keluar" readonly>
+                <input type="hidden" value="<?= $lng_kantor ?>" name="lng_kantor_keluar" readonly>
+                <input type="hidden" value="<?= $radius ?>" name="radius" readonly>
+                <input type="hidden" value="<?= $zona_waktu ?>" name="zona_waktu" readonly>
+                <input type="hidden" value="<?= date('Y-m-d') ?>" name="tanggal_keluar" readonly>
+                <input type="hidden" value="<?= date('H:i:s') ?>" name="jam_keluar" readonly>
+                <button type="submit" name="tombol_keluar" class="btn btn-danger mt-3">Keluar</button>
+              </form>
+            <?php else: ?>
+              <p>Anda sudah melakukan presensi pada pukul : <b
+                  class="text-success"><?= $presensi['jam_keluar'] ?></b></p>
+            <?php endif; ?>
           </div>
         </div>
       </div>
@@ -156,11 +148,10 @@ if (isset($_POST['longitude_pegawai'])) {
 
 <script>
   // Set waktu di card presensi masuk
-  window.setTimeout("waktuMasuk()", 1000);
   namaBulan = ["Januari", "Febuari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
   function waktuMasuk() {
     const waktu = new Date();
-    setTimeout("waktuMasuk()", 1000);
+    setTimeout(waktuMasuk, 1000);
     document.getElementById("tanggal_masuk").innerHTML = waktu.getDate();
     document.getElementById("bulan_masuk").innerHTML = namaBulan[waktu.getMonth()];
     document.getElementById("tahun_masuk").innerHTML = waktu.getFullYear();
@@ -168,13 +159,9 @@ if (isset($_POST['longitude_pegawai'])) {
     document.getElementById("menit_masuk").innerHTML = waktu.getMinutes();
     document.getElementById("detik_masuk").innerHTML = waktu.getSeconds();
   }
-
-  // Set waktu di card presensi keluar
-  window.setTimeout("waktuKeluar()", 1000);
-
   function waktuKeluar() {
     const waktu = new Date();
-    setTimeout("waktuKeluar()", 1000);
+    setTimeout(waktuKeluar, 1000);
     document.getElementById("tanggal_keluar").innerHTML = waktu.getDate();
     document.getElementById("bulan_keluar").innerHTML = namaBulan[waktu.getMonth()];
     document.getElementById("tahun_keluar").innerHTML = waktu.getFullYear();
@@ -182,21 +169,43 @@ if (isset($_POST['longitude_pegawai'])) {
     document.getElementById("menit_keluar").innerHTML = waktu.getMinutes();
     document.getElementById("detik_keluar").innerHTML = waktu.getSeconds();
   }
+  waktuMasuk();
+  waktuKeluar();
 
-  getLocation();
+  function updateLocationSession(lat, lng) {
+    $.post('update_location_session.php', { lat_pegawai: lat, lng_pegawai: lng });
+  }
 
-  function getLocation() {
+  function getLocation(callback) {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(showPosition);
+      navigator.geolocation.getCurrentPosition(function (position) {
+        updateLocationSession(position.coords.latitude, position.coords.longitude);
+        if (typeof callback === "function") callback();
+      }, showError);
     } else {
       alert("Browser Anda tidak mendukung");
+      if (typeof callback === "function") callback();
     }
   }
 
-  function showPosition(position) {
-    $('#latitude_pegawai').val(position.coords.latitude);
-    $('#longitude_pegawai').val(position.coords.longitude);
+  document.addEventListener('DOMContentLoaded', function () {
+    getLocation();
+  });
+
+  function showError(error) {
+    switch (error.code) {
+      case error.PERMISSION_DENIED:
+        alert("Izin lokasi ditolak. Presensi tidak dapat dilakukan tanpa lokasi."); break;
+      case error.POSITION_UNAVAILABLE:
+        alert("Informasi lokasi tidak tersedia."); break;
+      case error.TIMEOUT:
+        alert("Permintaan lokasi melebihi batas waktu."); break;
+      default:
+        alert("Terjadi kesalahan saat mengambil lokasi.");
+    }
   }
 </script>
 
-<?php include('../layout/footer.php'); ?>
+<?php
+$content = ob_get_clean();
+require_once __DIR__ . '/../layout/main.php';

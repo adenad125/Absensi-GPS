@@ -1,6 +1,7 @@
 <?php
-$judul = "Rekap Presensi Bulanan";
+session_start();
 ob_start();
+$judul = "Rekap Presensi Bulanan";
 require_once realpath(__DIR__ . '/../../config/config.php');
 
 // Get selected values from form (prioritize POST/GET, fallback to current)
