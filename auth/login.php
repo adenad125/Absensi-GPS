@@ -2,9 +2,8 @@
 session_start();
 require_once realpath(__DIR__ . '/../config/config.php');
 
-if (isset($_SESSION["login"]) && $_SESSION["login"] === true) {
-  header("Location: ../" . ($_SESSION['role'] === 'admin' ? "admin/home" : "pegawai/home"));
-}
+// Removed redirect to prevent redirect loop.
+// The redirect will only happen after a successful login below.
 
 if (isset($_POST["login"])) {
   $_SESSION['login_success'] = false;
@@ -134,7 +133,7 @@ unset($_SESSION['login_success']);
 unset($_SESSION['message_login']);
 ?>
 
-<?php if (isset($_SESSION['logout_success']) && $_SESSION['logout_success']) { ?>
+<?php if (isset($_GET['status_logout']) && $_GET['status_logout'] == 'success') { ?>
   <script>
     const Berhasil = Swal.mixin({
       toast: true,
@@ -150,13 +149,10 @@ unset($_SESSION['message_login']);
     Berhasil.fire({
       icon: "success",
       title: "Logout Berhasil!",
-      text: "<?= $_SESSION['message_logout']; ?>",
+      text: "Anda telah keluar dari sesi ini.",
     });
   </script>
-<?php }
-unset($_SESSION['logout_success']);
-unset($_SESSION['message_logout']);
-?>
+<?php } ?>
 </body>
 
 </html>

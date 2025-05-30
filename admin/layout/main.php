@@ -1,14 +1,12 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
-session_start();
-if (!isset($_SESSION["login"])) {
-  header("Location: ../../auth/login.php?pesan=belum_login");
-  exit;
-} else if ($_SESSION["role"] !== 'admin') {
-  header("Location: ../../auth/login.php?pesan=tolak_akses");
+if (session_status() === PHP_SESSION_NONE) {
+  session_start();
+}
+if (empty($_SESSION['login']) || !isset($_SESSION["role"]) || $_SESSION["role"] !== 'admin') {
+  header("Location: ../../auth/login.php");
   exit;
 }
-
+require_once __DIR__ . '/../../config/config.php';
 global $judul;
 ?>
 

@@ -1,9 +1,9 @@
 <?php
-$judul = "Home";
+session_start();
 ob_start();
+$judul = "Home";
 require_once realpath(__DIR__ . '/../../config/config.php');
-
-$pegawai = mysqli_query($connection, "SELECT pegawai.*, users.status FROM pegawai JOIN users ON pegawai.id = users.id_pegawai WHERE STATUS = 'Aktif'");
+$pegawai = mysqli_query($connection, "SELECT pegawai.*, users.status FROM pegawai JOIN users ON pegawai.id = users.id_pegawai WHERE LOWER(users.status) = 'aktif'");
 $total_pegawai_aktif = mysqli_num_rows($pegawai);
 ?>
 

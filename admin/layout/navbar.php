@@ -275,10 +275,10 @@
                             <div class="dropdown-menu-columns">
                                 <div class="dropdown-menu-column">
                                     <a class="dropdown-item" href="<?= base_url('admin/presensi/rekap_harian.php') ?>">
-                                        Rekap Harian
+                                        Absen Harian
                                     </a>
                                     <a class="dropdown-item" href="<?= base_url('admin/presensi/rekap_bulanan.php') ?>">
-                                        Rekap Bulanan
+                                        Absen Bulanan
                                     </a>
                                 </div>
                             </div>

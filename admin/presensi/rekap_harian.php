@@ -1,40 +1,51 @@
-<?php 
-session_start();
-if(!isset($_SESSION["login"])) {
-    header("Location: ../../auth/login.php?pesan=belum_login");
-    exit;
-} else if($_SESSION["role"] !== 'admin') {
-    header("Location: ../../auth/login.php?pesan=tolak_akses");
-    exit;
-}
-
+<?php
 $judul = "Rekap Presensi Harian";
-include('../layout/header.php'); 
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+ob_start();
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 if (empty($_GET['tanggal_dari'])) {
-    $result = mysqli_query($connection, "SELECT presensi.*, pegawai.nama, pegawai.lokasi_presensi FROM presensi JOIN pegawai ON presensi.id_pegawai = pegawai.id WHERE tanggal = CURDATE()");
+    $result = mysqli_query($connection, "SELECT pr.*, p.nama, l.nama_lokasi FROM presensi pr 
+    JOIN pegawai p ON  p.id = pr.id_pegawai
+    JOIN lokasi_presensi l ON l.id = p.id_lok_presensi");
 } else {
+    // Convert dd/mm/yyyy to yyyy-mm-dd for MySQL
     $tanggal_dari = $_GET['tanggal_dari'];
     $tanggal_sampai = $_GET['tanggal_sampai'];
-    $result = mysqli_query($connection, "SELECT presensi.*, pegawai.nama, pegawai.lokasi_presensi FROM presensi JOIN pegawai ON presensi.id_pegawai = pegawai.id WHERE tanggal BETWEEN '$tanggal_dari' AND '$tanggal_sampai'");
+    $tanggal_dari_mysql = date('Y-m-d', strtotime(str_replace('/', '-', $tanggal_dari)));
+    $tanggal_sampai_mysql = date('Y-m-d', strtotime(str_replace('/', '-', $tanggal_sampai)));
+    $result = mysqli_query($connection, "SELECT pr.*, p.nama, l.nama_lokasi FROM presensi pr 
+    JOIN pegawai p ON  p.id = pr.id_pegawai
+    JOIN lokasi_presensi l ON l.id = p.id_lok_presensi
+    WHERE pr.tanggal_masuk BETWEEN '$tanggal_dari_mysql' AND '$tanggal_sampai_mysql'");
 }
-?>  
+?>
 
+<!-- section -->
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    <?= $judul ?>
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="page-body">
     <div class="container-xl">
-
         <div class="row mb-3">
             <div class="col-md-2">
-                <a href="export_excel.php?tanggal_dari=<?= $_GET['tanggal_dari'] ?? '' ?>&tanggal_sampai=<?= $_GET['tanggal_sampai'] ?? '' ?>" class="btn btn-success">
+                <a href="export_excel.php?tanggal_dari=<?= $_GET['tanggal_dari'] ?? '' ?>&tanggal_sampai=<?= $_GET['tanggal_sampai'] ?? '' ?>"
+                    class="btn btn-success">
                     Export Excel
                 </a>
             </div>
             <div class="col-md-10">
                 <form method="GET">
                     <div class="input-group">
-                        <input type="date" class="form-control" name="tanggal_dari" required>
-                        <input type="date" class="form-control" name="tanggal_sampai" required>
+                        <input type="date" class="form-control" name="tanggal_dari" required value="<?= isset($_GET['tanggal_dari']) ? $_GET['tanggal_dari'] : '' ?>">
+                        <input type="date" class="form-control" name="tanggal_sampai" required value="<?= isset($_GET['tanggal_sampai']) ? $_GET['tanggal_sampai'] : '' ?>">
                         <button type="submit" class="btn btn-primary">Tampilkan</button>
                     </div>
                 </form>
@@ -45,10 +56,11 @@ if (empty($_GET['tanggal_dari'])) {
             <tr class="text-center">
                 <th>NO.</th>
                 <th>Nama</th>
+                <th>Lokasi</th>
                 <th>Tanggal</th>
                 <th>Jam Masuk</th>
                 <th>Jam Pulang</th>
-                <th>Total Jam</th>
+                <th>Total Jam Kerja</th>
                 <th>Total Terlambat</th>
             </tr>
 
@@ -56,14 +68,14 @@ if (empty($_GET['tanggal_dari'])) {
                 <tr>
                     <td colspan="7" class="text-center">Data rekap presensi masih kosong.</td>
                 </tr>
-            <?php } else { 
+            <?php } else {
                 $no = 1;
-                while ($rekap = mysqli_fetch_array($result)) :
+                while ($rekap = mysqli_fetch_array($result)):
                     $jam_masuk = $rekap['jam_masuk'];
                     $jam_keluar = $rekap['jam_keluar'];
-                    $tanggal_masuk = $rekap['tanggal'];
-                    $tanggal_keluar = $rekap['tanggal']; // Asumsi tanggal sama
-
+                    $tanggal_masuk = $rekap['tanggal_masuk'];
+                    $tanggal_keluar = $rekap['tanggal_masuk']; // Asumsi tanggal sama
+            
                     $jam_tanggal_masuk = date('Y-m-d H:i:s', strtotime("$tanggal_masuk $jam_masuk"));
                     $jam_tanggal_keluar = date('Y-m-d H:i:s', strtotime("$tanggal_keluar $jam_keluar"));
 
@@ -77,7 +89,7 @@ if (empty($_GET['tanggal_dari'])) {
                     $selisih_menit_kerja = floor($selisih / 60);
 
                     // Cek jam standar dari lokasi
-                    $lokasi_presensi = $rekap['lokasi_presensi'];
+                    $lokasi_presensi = $rekap['nama_lokasi'];
                     $lokasi_q = mysqli_query($connection, "SELECT * FROM lokasi_presensi WHERE nama_lokasi = '$lokasi_presensi'");
                     $lokasi_data = mysqli_fetch_assoc($lokasi_q);
                     $jam_masuk_standar = $lokasi_data['jam_masuk'];
@@ -86,17 +98,18 @@ if (empty($_GET['tanggal_dari'])) {
                     $jam_standar = strtotime($tanggal_masuk . ' ' . $jam_masuk_standar);
                     $terlambat = $timestamp_masuk - $jam_standar;
                     $terlambat_menit = $terlambat > 0 ? floor($terlambat / 60) : 0;
-            ?>
-                <tr class="text-center">
-                    <td><?= $no++ ?></td>
-                    <td><?= htmlspecialchars($rekap['nama']) ?></td>
-                    <td><?= $tanggal_masuk ?></td>
-                    <td><?= $jam_masuk ?></td>
-                    <td><?= $jam_keluar ?></td>
-                    <td><?= $total_jam_kerja . ' jam ' . $selisih_menit_kerja . ' menit' ?></td>
-                    <td><?= $terlambat_menit . ' menit' ?></td>
-                </tr>
-            <?php 
+                    ?>
+                    <tr class="text-center<?= $terlambat_menit > 0 ? ' table-danger' : '' ?>">
+                        <td><?= $no++ ?></td>
+                        <td><?= htmlspecialchars($rekap['nama']) ?></td>
+                        <td><?= $lokasi_presensi ?></td>
+                        <td><?= $tanggal_masuk ?></td>
+                        <td><?= $jam_masuk ?></td>
+                        <td><?= $jam_keluar ?></td>
+                        <td><?= $total_jam_kerja . ' jam ' . $selisih_menit_kerja . ' menit' ?></td>
+                        <td><?= $terlambat_menit . ' menit' ?></td>
+                    </tr>
+                    <?php
                 endwhile;
             } ?>
         </table>
@@ -122,4 +135,6 @@ if (empty($_GET['tanggal_dari'])) {
     </div>
 </div>
 
-<?php include('../layout/footer.php'); ?>
+<?php
+$content = ob_get_clean();
+require_once __DIR__ . '/../layout/main.php';
