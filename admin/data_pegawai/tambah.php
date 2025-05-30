@@ -1,15 +1,7 @@
 <?php
-session_start();
-ob_start();
-if (!isset($_SESSION["login"])) {
-    header("Location: ../../auth/login.php?pesan=belum_login");
-} else if ($_SESSION["role"] !== 'admin') {
-    header("Location: ../../auth/login.php?pesan=tolak_akses");
-}
-
 $judul = "Tambah Pegawai";
-include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+ob_start();
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 if (isset($_POST['submit'])) {
 
@@ -47,7 +39,6 @@ if (isset($_POST['submit'])) {
         $ambil_ekstensi = pathinfo($nama_file, PATHINFO_EXTENSION);
         $ekstensi_diizinkan = ["jpg", "png", "jpeg"];
         $max_ukuran_file = 10 * 1024 * 1024;
-
 
         move_uploaded_file($file_tmp, $file_direktori);
     }
@@ -109,12 +100,22 @@ if (isset($_POST['submit'])) {
 }
 ?>
 
-<class="page-body">
+<!-- section -->
+<div class="page-header d-print-none">
     <div class="container-xl">
-
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    <?= $judul ?>
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="page-body">
+    <div class="container-xl">
         <form action="<?= base_url('admin/data_pegawai/tambah.php') ?>" method="POST" enctype="multipart/form-data">
             <div class="row">
-
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body">
@@ -123,7 +124,6 @@ if (isset($_POST['submit'])) {
                                 <input type="text" class="form-control" name="nama"
                                     value="<?= isset($_POST['nama']) ?? $_POST['nama'] ?>">
                             </div>
-
                             <div class="mb-3">
                                 <label for="">Jenis Kelamin</label>
                                 <select name="jenis_kelamin" class="form-control">
@@ -133,19 +133,16 @@ if (isset($_POST['submit'])) {
                                     <option <?= isset($_POST['jenis_kelamin']) && $_POST['jenis_kelamin'] == 'P' ? 'selected' : '' ?> value="P">Perempuan</option>
                                 </select>
                             </div>
-
                             <div class="mb-3">
                                 <label for="">Alamat</label>
                                 <input type="text" class="form-control" name="alamat"
                                     value="<?= isset($_POST['alamat']) ?? $_POST['alamat'] ?>">
                             </div>
-
                             <div class="mb-3">
                                 <label for="">No. Handphone</label>
                                 <input type="text" class="form-control" name="no_handphone"
                                     value="<?= isset($_POST['no_handphone']) ?? $_POST['no_handphone'] ?>">
                             </div>
-
                             <div class="mb-3">
                                 <label for="">Jabatan</label>
                                 <select name="id_jabatan" class="form-control">
@@ -159,7 +156,6 @@ if (isset($_POST['submit'])) {
                                     ?>
                                 </select>
                             </div>
-
                             <div class="mb-3">
                                 <label for="">Status</label>
                                 <select name="status" class="form-control">
@@ -167,7 +163,6 @@ if (isset($_POST['submit'])) {
                                     <option <?php if (isset($_POST['status']) && $_POST['status'] == 'aktif') {
                                         echo 'selected';
                                     } ?> value="aktif">Aktif</option>
-
                                     <option <?php if (isset($_POST['status']) && $_POST['status'] == 'Tidak Aktif') {
                                         echo 'selected';
                                     } ?> value="non aktif">Tidak Aktif</option>
@@ -180,24 +175,19 @@ if (isset($_POST['submit'])) {
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body">
-
                             <div class="mb-3">
                                 <label for="">Username</label>
                                 <input type="text" class="form-control" name="username" value="<?php if (isset($_POST['username']))
                                     echo $_POST['username'] ?>">
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="">Password</label>
                                     <input type="password" class="form-control" name="password">
                                 </div>
-
                                 <div class="mb-3">
                                     <label for="">Ulangi Password</label>
                                     <input type="password" class="form-control" name="ulangi_password">
                                 </div>
-
-
                                 <div class="mb-3">
                                     <label for="">Role</label>
                                     <select name="role" class="form-control">
@@ -205,18 +195,15 @@ if (isset($_POST['submit'])) {
                                         <option <?php if (isset($_POST['role']) && $_POST['role'] == 'admin') {
                                     echo 'selected';
                                 } ?> value="admin">Admin</option>
-
                                     <option <?php if (isset($_POST['role']) && $_POST['role'] == 'pegawai') {
                                         echo 'selected';
                                     } ?> value="pegawai">Pegawai</option>
                                 </select>
                             </div>
-
                             <div class="mb-3">
                                 <label for="">Lokasi Presensi</label>
                                 <select name="id_lok_presensi" class="form-control">
                                     <option value="">--Pilih Lokasi Presensi--</option>
-
                                     <?php
                                     $lokasi_presensis = mysqli_query($connection, "SELECT * FROM lokasi_presensi ORDER BY id ASC");
                                     while ($lokasi_presensi = mysqli_fetch_assoc($lokasi_presensis)) {
@@ -226,25 +213,18 @@ if (isset($_POST['submit'])) {
                                     ?>
                                 </select>
                             </div>
-
                             <div class="mb-3">
                                 <label for="">Foto</label>
                                 <input type="file" class="form-control" name="foto">
                             </div>
-
                             <button type="submit" class="btn btn-primary" name="submit">Simpan</button>
-
                         </div>
                     </div>
                 </div>
         </form>
     </div>
+</div>
 
-
-    </div>
-
-
-    </div>
-    </div>
-
-    <?php include('../layout/footer.php'); ?>
+<?php
+$content = ob_get_clean();
+require_once __DIR__ . '/../layout/main.php';

@@ -1,18 +1,9 @@
 <?php
-session_start();
+$judul = "Edit Pegawai ";
 ob_start();
-if (!isset($_SESSION["login"])) {
-    header("Location: ../../auth/login.php?pesan=belum_login");
-} else if ($_SESSION["role"] !== 'admin') {
-    header("Location: ../../auth/login.php?pesan=tolak_akses");
-}
-
-$judul = "Edit Pegawai";
-include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 if (isset($_POST['edit'])) {
-
     $id = $_POST['id'];
     $nama = htmlspecialchars($_POST['nama']);
     $jenis_kelamin = htmlspecialchars($_POST['jenis_kelamin']);
@@ -150,17 +141,26 @@ while ($pegawai = mysqli_fetch_array($result)) {
 }
 ?>
 
-<class="page-body">
+<!-- section -->
+<div class="page-header d-print-none">
     <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    <?= $judul ?>
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
 
+<div class="page-body">
+    <div class="container-xl">
         <form action="<?= base_url('admin/data_pegawai/edit.php') ?>" method="POST" enctype="multipart/form-data">
             <div class="row">
-
                 <div class="col-md-6">
                     <div class="card">
                         <div class="card-body">
-
-
                             <div class="mb-3">
                                 <label for="">Nama</label>
                                 <input type="text" class="form-control" name="nama" value="<?= $nama ?>">
@@ -266,22 +266,15 @@ while ($pegawai = mysqli_fetch_array($result)) {
                                 <input type="hidden" value="<?= $foto ?>" name="foto_lama">
                                 <input type="file" class="form-control" name="foto_baru">
                             </div>
-
                             <input type="hidden" value="<?= $id ?>" name="id">
-
                             <button type="submit" class="btn btn-primary" name="edit">Update</button>
-
                         </div>
                     </div>
                 </div>
         </form>
     </div>
+</div>
 
-
-    </div>
-
-
-    </div>
-    </div>
-
-    <?php include('../layout/footer.php'); ?>
+<?php
+$content = ob_get_clean();
+require_once __DIR__ . '/../layout/main.php';

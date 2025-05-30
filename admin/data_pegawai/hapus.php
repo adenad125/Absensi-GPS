@@ -1,14 +1,12 @@
-<?php 
-
-session_start();
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+<?php
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 $id = $_GET['id'];
+
+$result = mysqli_query($connection, "DELETE FROM users WHERE id_pegawai=$id");
 
 $result = mysqli_query($connection, "DELETE FROM pegawai WHERE id=$id");
 
 $_SESSION['berhasil'] = 'Data berhasil dihapus';
-header("Location: pegawai.php");
+header("Location: index.php");
 exit;
-
-include('../layout/footer.php');

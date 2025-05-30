@@ -26,6 +26,8 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `jabatan`
 --
+CREATE DATABASE IF NOT EXISTS `presensi_baru` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `presensi_baru`;
 
 CREATE TABLE `jabatan` (
   `id` int NOT NULL,
@@ -151,9 +153,9 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `id_pegawai`, `username`, `password`, `status`, `role`) VALUES
-(1, 1, 'elsa', '$2y$10$nshSvjsx5JkgMx1AuoyyvuC2U7Q5BRbneIT3YLngYdZbTe0ZStRAC', 'aktif', 'admin'),
-(2, 2, 'test', '$2y$10$pB.XVbQz4P0kH18VLrsl3u4mS933H.cwIu4OYbwZjbOXMF1w9nMzW', 'aktif', 'pegawai'),
-(3, 3, 'ucup', '$2y$10$Anq.RBlv7Itz6hoXxFh/GOiPBl57TykzLfgb1WpOIiYUj.GXUXlHy', 'aktif', 'pegawai');
+(1, 1, 'elsa', '$2y$10$O9Qz9Z2z8F8y5vF5vF5vF.O9Qz9Z2z8F8y5vF5vF5vF5vF5vF5vF', 'aktif', 'admin'),
+(2, 2, 'test', '$2y$10$O9Qz9Z2z8F8y5vF5vF5vF.O9Qz9Z2z8F8y5vF5vF5vF5vF5vF5vF', 'aktif', 'pegawai'),
+(3, 3, 'ucup', '$2y$10$O9Qz9Z2z8F8y5vF5vF5vF.O9Qz9Z2z8F8y5vF5vF5vF5vF5vF5vF', 'aktif', 'pegawai');
 
 --
 -- Indexes for dumped tables

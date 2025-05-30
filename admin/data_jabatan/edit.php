@@ -1,16 +1,7 @@
 <?php
-session_start();
+$judul = "Edit Jabatan";
 ob_start();
-
-if (!isset($_SESSION["login"])) {
-  header("Location: ../../auth/login.php?pesan=belum_login");
-} else if ($_SESSION["role"] !== 'admin') {
-  header("Location: ../../auth/login.php?pesan=tolak_akses");
-}
-
-$judul = "Edit Data Jabatan";
-include('../layout/header.php');
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 if (isset($_POST['update'])) {
   $id = $_POST['id'];
@@ -41,13 +32,23 @@ while ($jabatan = mysqli_fetch_array($result)) {
 }
 ?>
 
+<!-- section -->
+<div class="page-header d-print-none">
+  <div class="container-xl">
+    <div class="row g-2 align-items-center">
+      <div class="col">
+        <h2 class="page-title">
+          <?= $judul ?>
+        </h2>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- Page body -->
 <div class="page-body">
   <div class="container-xl">
-
     <div class="card col-md-6">
       <div class="card-body">
-
         <form action="edit.php" method="POST">
           <div class="mb-3">
             <label for="">Nama Jabatan</label>
@@ -56,10 +57,11 @@ while ($jabatan = mysqli_fetch_array($result)) {
           <input type="hidden" value="<?= $id ?> " name="id">
           <button type="submit" name="update" class="btn btn-primary">Update</button>
         </form>
-
       </div>
     </div>
   </div>
 </div>
 
-<?php include('../layout/footer.php'); ?>
+<?php
+$content = ob_get_clean();
+require_once __DIR__ . '/../layout/main.php';
