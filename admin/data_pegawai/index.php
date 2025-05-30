@@ -1,6 +1,8 @@
 <?php
-$judul = "Data Pegawai";
+session_start();
 ob_start();
+$judul = "Data Pegawai";
+
 require_once realpath(__DIR__ . '/../../config/config.php');
 
 $result = mysqli_query(

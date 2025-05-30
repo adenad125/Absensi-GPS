@@ -4,7 +4,17 @@ require_once realpath(__DIR__ . '/../config/config.php');
 
 // Removed redirect to prevent redirect loop.
 // The redirect will only happen after a successful login below.
-
+if (isset($_SESSION['login']) && $_SESSION['login'] === true) {
+  if (isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'admin') {
+      header("Location: ../admin/home");
+      exit();
+    } elseif ($_SESSION['role'] === 'pegawai') {
+      header("Location: ../pegawai/home");
+      exit();
+    }
+  }
+}
 if (isset($_POST["login"])) {
   $_SESSION['login_success'] = false;
 

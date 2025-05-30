@@ -1,4 +1,6 @@
 <?php
+session_start();
+ob_start();
 require_once realpath(__DIR__ . '/../../config/config.php');
 
 $id = $_GET['id'];

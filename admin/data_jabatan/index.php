@@ -1,6 +1,8 @@
 <?php
-$judul = "Data Jabatan";
+session_start();
 ob_start();
+$judul = "Data Jabatan";
+
 require_once realpath(__DIR__ . '/../../config/config.php');
 
 $result = mysqli_query($connection, "SELECT * FROM jabatan ORDER BY id DESC");

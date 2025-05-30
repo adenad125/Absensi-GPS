@@ -1,6 +1,8 @@
 <?php
-$judul = "Tambah Lokasi Presensi";
+session_start();
 ob_start();
+$judul = "Tambah Lokasi Presensi";
+
 require_once realpath(__DIR__ . '/../../config/config.php');
 
 if (isset($_POST['submit'])) {

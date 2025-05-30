@@ -1,6 +1,8 @@
 <?php
-$judul = "Tambah Jabatan";
+session_start();
 ob_start();
+$judul = "Tambah Jabatan";
+
 require_once realpath(__DIR__ . '/../../config/config.php');
 
 if (isset($_POST['submit'])) {

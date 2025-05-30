@@ -1,7 +1,7 @@
 <?php 
-
 session_start();
-require_once 'C:/laragon/www/PRESENSI/config/config.php';
+ob_start();
+require_once realpath(__DIR__ . '/../../config/config.php');
 
 $id = $_GET['id'];
 

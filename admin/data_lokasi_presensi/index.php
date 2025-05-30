@@ -1,6 +1,8 @@
 <?php
-$judul = "Data Lokasi Presensi";
+session_start();
 ob_start();
+$judul = "Data Lokasi Presensi";
+
 require_once realpath(__DIR__ . '/../../config/config.php');
 $result = mysqli_query($connection, "SELECT * FROM lokasi_presensi ORDER BY id DESC");
 ?>
