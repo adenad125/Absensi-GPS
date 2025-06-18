@@ -26,8 +26,8 @@ SET time_zone = "+00:00";
 --
 -- Table structure for table `jabatan`
 --
-CREATE DATABASE IF NOT EXISTS `presensi_baru` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
-USE `presensi_baru`;
+CREATE DATABASE IF NOT EXISTS `absensi_gps` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+USE `absensi_gps`;
 
 CREATE TABLE `jabatan` (
   `id` int NOT NULL,

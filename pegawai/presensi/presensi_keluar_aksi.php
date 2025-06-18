@@ -1,12 +1,11 @@
 <?php
-session_start();
-ob_start();
 require_once realpath(__DIR__ . '/../../config/config.php');
+session_start();
 
-if (empty($_SESSION["login"]) || $_SESSION["role"] !== 'pegawai') {
-    header("Location: ../../auth/login.php?pesan=akses_ditolak");
-    exit;
-}
+// if (empty($_SESSION["login"]) || $_SESSION["role"] !== 'pegawai') {
+//     header("Location: ../../auth/login.php?pesan=akses_ditolak");
+//     exit;
+// }
 
 // Pastikan semua data POST tersedia
 if (!isset($_POST['photo'], $_POST['id'], $_POST['tanggal_keluar'], $_POST['jam_keluar'])) {

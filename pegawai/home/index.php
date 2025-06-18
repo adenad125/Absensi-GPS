@@ -66,6 +66,7 @@ if ($zona_waktu == 'WIB') {
     "SELECT * FROM presensi WHERE id_pegawai = '$id_pegawai' AND tanggal_masuk = '$tanggal_hari_ini'"
   );
   $presensi = mysqli_fetch_array($result);
+  
   ?>
   <div class="container-xl">
     <div class="row">
@@ -124,7 +125,7 @@ if ($zona_waktu == 'WIB') {
               <div>:</div>
               <div id="detik_keluar"></div>
             </div>
-            <?php if (!empty($presensi) && empty($presensi['jam_keluar'])): ?>
+            <?php if (empty($presensi['jam_keluar'])): ?>
               <form method="POST" action="<?= base_url('pegawai/presensi/presensi_keluar.php') ?>">
                 <input type="hidden" value="<?= $lat_kantor ?>" name="lat_kantor_keluar" readonly>
                 <input type="hidden" value="<?= $lng_kantor ?>" name="lng_kantor_keluar" readonly>
