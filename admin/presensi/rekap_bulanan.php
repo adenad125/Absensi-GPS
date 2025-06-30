@@ -40,10 +40,9 @@ $result = mysqli_query($connection, "SELECT pr.*, p.nama, l.nama_lokasi
     <div class="container-xl">
         <div class="row mb-3">
             <div class="col-md-2">
-                <a href="export_excel.php?bln_dari=<?= $bln_dari ?>&bln_sampai=<?= $bln_sampai ?>&tahun=<?= $tahun ?>"
-                    class="btn btn-success">
+                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Export Excel
-                </a>
+                </button>
             </div>
             <div class="col-md-10">
                 <form method="GET">

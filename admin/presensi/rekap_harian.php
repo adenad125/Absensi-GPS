@@ -37,16 +37,17 @@ if (empty($_GET['tanggal_dari'])) {
     <div class="container-xl">
         <div class="row mb-3">
             <div class="col-md-2">
-                <a href="export_excel.php?tanggal_dari=<?= $_GET['tanggal_dari'] ?? '' ?>&tanggal_sampai=<?= $_GET['tanggal_sampai'] ?? '' ?>"
-                    class="btn btn-success">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
                     Export Excel
-                </a>
+                </button>
             </div>
             <div class="col-md-10">
                 <form method="GET">
                     <div class="input-group">
-                        <input type="date" class="form-control" name="tanggal_dari" required value="<?= isset($_GET['tanggal_dari']) ? $_GET['tanggal_dari'] : '' ?>">
-                        <input type="date" class="form-control" name="tanggal_sampai" required value="<?= isset($_GET['tanggal_sampai']) ? $_GET['tanggal_sampai'] : '' ?>">
+                        <input type="date" class="form-control" name="tanggal_dari" required
+                            value="<?= isset($_GET['tanggal_dari']) ? $_GET['tanggal_dari'] : '' ?>">
+                        <input type="date" class="form-control" name="tanggal_sampai" required
+                            value="<?= isset($_GET['tanggal_sampai']) ? $_GET['tanggal_sampai'] : '' ?>">
                         <button type="submit" class="btn btn-primary">Tampilkan</button>
                     </div>
                 </form>
@@ -67,7 +68,7 @@ if (empty($_GET['tanggal_dari'])) {
 
             <?php if (mysqli_num_rows($result) === 0) { ?>
                 <tr>
-                    <td colspan="7" class="text-center">Data rekap presensi masih kosong.</td>
+                    <td colspan="8" class="text-center">Data rekap presensi masih kosong.</td>
                 </tr>
             <?php } else {
                 $no = 1;
@@ -125,13 +126,25 @@ if (empty($_GET['tanggal_dari'])) {
                 <h5 class="modal-title">Export Excel</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                Klik tombol "Export Excel" untuk menyimpan data rekap dalam format Excel.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn me-auto" data-bs-dismiss="modal">Tutup</button>
-                <a href="#" class="btn btn-primary" data-bs-dismiss="modal">Export</a>
-            </div>
+            <form method="POST" action="<?= base_url('admin/presensi/rekap_harian_excel.php') ?>">
+                <div class="modal-body">
+
+                    <div class="mb-3">
+                        <label for="">Tanggal Awal</label>
+                        <input type="date" class="form-control" name="tanggal_dari">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="">Tanggal Akhir</label>
+                        <input type="date" class="form-control" name="tanggal_sampai">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" c lass="btn me-auto" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" data-bs-dismiss="modal">Export</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -97,12 +97,12 @@ if (isset($_POST["login"])) {
                     </div>
                     <h2 class="h2 text-center mb-4">Login</h2>
                     <form action="" method="POST" autocomplete="off" novalidate>
-                      <div class="mb-3">
+                      <div class="mb-3" style="text-align:left;">
                         <label class="form-label">Username</label>
                         <input type="text" class="form-control" autofocus name="username" placeholder="Username"
                           autocomplete="off">
                       </div>
-                      <div class="mb-2">
+                      <div class="mb-3" style="text-align:left;">
                         <label class="form-label">Password</label>
                         <div class="input-group input-group-flat">
                           <input type="password" class="form-control" name="password" placeholder="Password"
